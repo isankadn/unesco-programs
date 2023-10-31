@@ -1,0 +1,152 @@
+## mako
+<%page expression_filter="h"/>
+
+<%!
+from django.utils.translation import ugettext as _
+from openedx.core.djangolib.markup import HTML, Text
+from django.middleware.csrf import get_token
+%>
+
+<%inherit file="/main.html"/>
+<%namespace name='static' file='static_content.html'/>
+
+<%block name="title">
+    <title>${_("Add Program")}</title>
+</%block>
+
+<%block name="extra_css">
+<style>
+  li{
+    display: grid;
+    list-style: none;
+  }
+  .mb-5{
+    margin-bottom: 5px;
+  }
+  .mb-10{
+    margin-bottom: 10px;
+  }
+  .md-25{
+    margin-bottom: 25px;
+  }
+  .mb-50{
+    margin-bottom: 50px;
+  }
+  .mb-100{
+    margin-bottom: 100px;
+  }
+  .banner-container{
+    height: 300px;           
+    width: 100%;            
+    overflow: hidden;      
+    position: relative; 
+  }
+  .img-fluid{
+    object-fit: cover;       
+    height: 100%;            
+    width: 100%;            
+    position: absolute;     
+    top: 0;                 
+    left: 0;  
+  }
+  .img-thumbnail{
+    width: 150px;
+   
+  }
+  .off-org,
+  .off-courses,
+  .course-list,
+  .org-list {
+    text-align: center;
+  }
+  .program-org,
+  .program-courses {
+            display: flex;  
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            align-content: center; 
+            gap: 20px;
+  }
+  .org-name,
+  .course-name{
+    font-size: 18px;
+    font-weight: normal; 
+    color: rgb(72, 72, 72);
+    text-decoration: none;
+  }
+  a:hover,
+  .org-name:hover,
+  .course-name:hover{
+    color: rgb(64, 64, 64);
+    text-decoration: none;
+  }
+  .org-list,
+  .course-list{
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px;
+      box-shadow: 0 1px 4px 0 rgba(154, 154, 154, 0.4);
+   }
+   .sub_menu a{
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      padding: 10px;
+      margin: 10px 0px;
+      width: 20%;
+      float: right;
+      background: #0069B4 !important;
+      color: white !important;
+      text-align: center;
+    }
+  </style>
+</%block>
+
+<%block name="content">
+  % if can_edit:
+    <div class="sub_menu"> <a href="">Edit Program</a> </div>
+  % endif
+    <div class="program mt-0">
+        <!-- Program Banner -->
+        <div class="banner-container mb-4">
+            <img src="${program.banner_image.url}" alt="Program Banner" class="img-fluid">
+        </div>
+
+        <!-- Program Name -->
+        <h1 class="program-name mb-25"">${program.name}</h1>
+
+        <!-- Program Description -->
+        <div class="program-desc  mb-50">
+            ${HTML(program.description)} <!-- Maintain HTML format of the description -->
+        </div>
+
+        
+
+        <!-- Course List -->
+        <h2 class="off-courses mb-25">${_("Courses in this Program")}</h2>
+        <div class="program-courses mb-100">
+            % for course in program.courses.all():
+                <a href="/courses/${course.id}/">
+                  <div class="course-list">
+                      <img src="${course.course_image_url if course.course_image_url else '#'}" alt="${course.display_name}" class="img-thumbnail mb-10" style="width: 300px;"> <!-- Course Card Image -->
+                      <h4 class="course-name">${course.display_name}</h4>
+                  </div>
+                </a>
+            % endfor
+        </div>
+
+        <!-- Program Offering Organizations -->
+        <h2 class="off-org mb-25">${_("Offering Partner")}</h2>
+        <div class="program-org mb-100">
+            % for organization in program.organizations.all():
+                <a href="/partners/${organization.short_name}/">
+                  <div class="org-list mb-5">
+                      <img src="${organization.logo.url if organization.logo else '#'}" alt="${organization.name}" class="img-thumbnail mb-10" style="width: 150px;"> <!-- Organization Logo -->
+                      <h4 class="org-name" >${organization.name}</h4>
+                  </div>
+                </a>
+            % endfor
+        </div>
+    </div>
+</%block>

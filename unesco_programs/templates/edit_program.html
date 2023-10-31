@@ -1,0 +1,112 @@
+## mako
+<%page expression_filter="h"/>
+
+<%!
+from django.utils.translation import ugettext as _
+from openedx.core.djangolib.markup import HTML, Text
+from django.middleware.csrf import get_token
+%>
+
+<%inherit file="/main.html"/>
+<%namespace name='static' file='static_content.html'/>
+
+<%block name="title">
+    <title>${_("Add Program")}</title>
+</%block>
+
+<%block name="extra_css">
+    <style>
+        .scrollable-checkbox-list {
+            max-height: 200px; /* adjust as needed */
+            overflow-y: auto;
+            border: 1px solid #ced4da;
+            padding: 10px;
+            border-radius: 0.25rem;
+            li{
+              display: flex;
+            }
+        }
+        .scrollable-checkbox-list li {
+            display: flex;
+        }
+        .scrollable-checkbox-list input {
+            margin-right: 5px;
+        }
+        .form-group label {
+            padding-bottom: 5px;
+            display: flex;
+        }
+        form .btn {
+            margin-top: 20px;
+        }
+        .ck-editor__editable {
+            height: 300px; /* or any other value */
+        }
+    </style>
+</%block>
+<%block name="content">
+    <div class="container mt-5">
+        <h1>Edit Program: ${ program.name | h }</h1>
+        <form method="post" enctype="multipart/form-data" class="mt-4">
+            <input type="hidden" name="csrfmiddlewaretoken" value="${ get_token(request) }" />
+
+            <!-- Name -->
+            <div class="form-group">
+                <label for="id_name">${ form['name'].label }</label>
+                <div class="mb-3">
+                    ${ form['name']}
+                </div>
+            </div>
+
+            <!-- Organizations -->
+            <div class="form-group">
+                <label for="id_organizations">${ form['organizations'].label}</label>
+                <div class="scrollable-checkbox-list mb-3">
+                    ${ form['organizations'] }
+                </div>
+            </div>
+
+            <!-- Courses -->
+            <div class="form-group">
+                <label for="id_courses">${ form['courses'].label }</label>
+                <div class="scrollable-checkbox-list mb-3">
+                    ${ form['courses'] }
+                </div>
+            </div>
+
+            <!-- Description and Banner Image -->
+            <div class="form-group">
+                <label for="id_description">${ form['description'].label }</label>
+                ${ form['description'] }
+            </div>
+            <div class="form-group">
+                <label for="id_banner_image">${ form['banner_image'].label }</label>
+                ${ form['banner_image'] }
+                % if program.banner_image:
+                    <div class="mt-2">
+                        <img src="${ program.banner_image.url }" alt="Banner Image" style="max-width: 200px;">
+                    </div>
+                % endif
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+    </div>
+
+    <script src="${static.url('unesco_tutor/js/ckeditor/ckeditor.js')}"></script>
+
+<!-- Transform the textarea to CKEditor -->
+<script>
+   
+   ClassicEditor
+   .create(document.querySelector('#id_description'))
+    .then( editor => {
+        console.log( editor );
+    } )
+    .catch( error => {
+        console.error( error );
+    } );
+               
+</script>
+</%block>

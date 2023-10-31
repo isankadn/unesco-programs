@@ -1,0 +1,94 @@
+## mako
+<%page expression_filter="h"/>
+
+<%!
+import re
+from html import unescape
+from django.urls import reverse
+from django.utils.translation import ugettext as _
+from openedx.core.djangolib.markup import HTML, Text
+from django.middleware.csrf import get_token
+
+%>
+
+<%inherit file="/main.html"/>
+<%namespace name='static' file='static_content.html'/>
+
+<%block name="title">
+    <title>${_("Programs")}</title>
+</%block>
+
+<%block name="content">
+    % if can_add:
+        <div class="sub_menu"> <a href="">Add New Program</a> </div>
+    % endif
+    <div class="container mt-5">
+        <h1>${_("Programs")}</h1>    
+            <div class="d-flex flex-wrap"> 
+            % for program in programs:
+                <div style="width: 33.3333%; padding: 0 15px; box-sizing: border-box;">
+                    <div class="col-md-4 mb-4">  
+                        <a href="${reverse('program_detail', args=[program.slug])}" class="text-decoration-none">
+                            <div class="card h-100"> 
+                                <img class="card-img-top" src="${program.banner_image.url}" alt="${program.name}" style="height: 150px; width: 100%; object-fit: cover; object-position: center;"/>
+                                <div class="card-body">
+                                    <h2 class="card-title">${program.name}</h2>
+                                    <p class="card-text">${Text(re.sub('<.*?>', '', unescape(program.description))[:100])}...</p>
+                                </div>
+                                <div class="card-footer"> 
+                                    <small class="text-muted">More Info</small>
+                                </div>
+                            </div>
+                        </a> 
+                    </div>
+                </div>
+            % endfor
+            </div>
+       </div>
+</%block>
+
+<%block name="extra_css">
+    <style>
+        /* Additional styles for the card */
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for a lifted effect */
+            border: none; /* Remove default border */
+            transition: transform 0.2s; /* Animation for hover effect */
+            border-radius: 10px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px); /* Lift the card up when hovered */
+        }
+        .card-title {
+            margin: 2rem 0.5rem 0.5rem 0.5rem;
+        }
+        .card-text {
+            margin: 0.5rem;
+        }
+        .card-footer {
+            background-color: #fff;
+            border-top: none;
+            text-align: right;
+            padding: 0.5rem;
+        }
+        .text-decoration-none:hover,
+        .text-decoration-none{
+            text-decoration: none !important;
+            color: #393939 !important;
+        }
+        .sub_menu a{
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            padding: 10px;
+            margin: 10px 0px;
+            width: 20%;
+            float: right;
+            background: #0069B4 !important;
+            color: white !important;
+            text-align: center;
+         }
+        
+    </style>
+</%block>

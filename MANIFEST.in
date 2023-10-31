@@ -1,0 +1,3 @@
+include unesco_programs/templates/*
+include unesco_programs/static/*
+      
