@@ -75,6 +75,11 @@ from django.middleware.csrf import get_token
     color: rgb(72, 72, 72);
     text-decoration: none;
   }
+  .course-number,
+  .course-start,
+  .course-name{
+    padding-left: 10px;
+  }
   a:hover,
   .org-name:hover,
   .course-name:hover{
@@ -88,6 +93,9 @@ from django.middleware.csrf import get_token
       padding: 10px;
       box-shadow: 0 1px 4px 0 rgba(154, 154, 154, 0.4);
    }
+   .course-list{
+    text-align: left;    
+   }
    .sub_menu a{
       display: flex;
       flex-direction: row;
@@ -99,6 +107,18 @@ from django.middleware.csrf import get_token
       background: #0069B4 !important;
       color: white !important;
       text-align: center;
+    } 
+    .course-number{
+      font-size: 14px;
+      font-weight: normal; 
+      color: rgb(72, 72, 72);
+      text-decoration: none;
+    }
+    .course-start{
+      font-size: 14px;
+      font-weight: normal; 
+      color: rgb(72, 72, 72);
+      text-decoration: none;
     }
   </style>
 </%block>
@@ -131,6 +151,8 @@ from django.middleware.csrf import get_token
                   <div class="course-list">
                       <img src="${course.course_image_url if course.course_image_url else '#'}" alt="${course.display_name}" class="img-thumbnail mb-10" style="width: 300px;"> <!-- Course Card Image -->
                       <h4 class="course-name">${course.display_name}</h4>
+                      <p class="course-number">${course.display_number_with_default}</p>
+                      <p class="course-start">${course.start_display}</p>
                   </div>
                 </a>
             % endfor
