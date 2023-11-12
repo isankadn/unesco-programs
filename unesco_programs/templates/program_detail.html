@@ -5,6 +5,7 @@
 from django.utils.translation import ugettext as _
 from openedx.core.djangolib.markup import HTML, Text
 from django.middleware.csrf import get_token
+from django.urls import reverse
 %>
 
 <%inherit file="/main.html"/>
@@ -125,7 +126,7 @@ from django.middleware.csrf import get_token
 
 <%block name="content">
   % if can_edit:
-    <div class="sub_menu"> <a href="">Edit Program</a> </div>
+    <div class="sub_menu"> <a href="${reverse('edit_program', kwargs={'program_slug': program.slug})}">Edit Program</a> </div>
   % endif
     <div class="program mt-0">
         <!-- Program Banner -->
@@ -139,9 +140,7 @@ from django.middleware.csrf import get_token
         <!-- Program Description -->
         <div class="program-desc  mb-50">
             ${HTML(program.description)} <!-- Maintain HTML format of the description -->
-        </div>
-
-        
+        </div>      
 
         <!-- Course List -->
         <h2 class="off-courses mb-25">${_("Courses in this Program")}</h2>

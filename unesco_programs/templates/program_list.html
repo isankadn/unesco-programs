@@ -20,7 +20,7 @@ from django.middleware.csrf import get_token
 
 <%block name="content">
     % if can_add:
-        <div class="sub_menu"> <a href="">Add New Program</a> </div>
+        <div class="sub_menu"> <a href="${reverse('add_program')}">Add New Program</a> </div>
     % endif
     <div class="container mt-5">
         <h1>${_("Programs")}</h1>    
