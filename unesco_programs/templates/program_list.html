@@ -23,32 +23,68 @@ from django.middleware.csrf import get_token
         <div class="sub_menu"> <a href="${reverse('add_program')}">Add New Program</a> </div>
     % endif
     <div class="container mt-5">
-        <h1>${_("Programs")}</h1>    
-            <div class="d-flex flex-wrap"> 
-            % for program in programs:
-                <div style="width: 33.3333%; padding: 0 15px; box-sizing: border-box;">
-                    <div class="col-md-4 mb-4">  
-                        <a href="${reverse('program_detail', args=[program.slug])}" class="text-decoration-none">
-                            <div class="card h-100"> 
-                                <img class="card-img-top" src="${program.banner_image.url}" alt="${program.name}" style="height: 150px; width: 100%; object-fit: cover; object-position: center;"/>
-                                <div class="card-body">
-                                    <h2 class="card-title">${program.name}</h2>
-                                    <p class="card-text">${Text(re.sub('<.*?>', '', unescape(program.description))[:100])}...</p>
+        <h1>${_("Programs")}</h1>
+
+        % if programs:
+            <div class="programs-grid"> 
+                % for program in programs:
+                    <div class="program-card" style="padding: 0 15px; box-sizing: border-box;">
+                        <div class="col-md-4 mb-4">  
+                            <a href="${reverse('program_detail', args=[program.slug])}" class="text-decoration-none">
+                                <div class="card h-100"> 
+                                    <img class="card-img-top" src="${program.banner_image.url}" alt="${program.name}" style="height: 150px; width: 100%; object-fit: cover; object-position: center;"/>
+                                    <div class="card-body">
+                                        <h2 class="card-title">${program.name}</h2>
+                                        <p class="card-text">${Text(re.sub('<.*?>', '', unescape(program.description))[:100])}...</p>
+                                    </div>
+                                    <div class="card-footer"> 
+                                        <small class="text-muted">More Info</small>
+                                    </div>
                                 </div>
-                                <div class="card-footer"> 
-                                    <small class="text-muted">More Info</small>
-                                </div>
-                            </div>
-                        </a> 
+                            </a> 
+                        </div>
                     </div>
-                </div>
-            % endfor
+                % endfor
             </div>
-       </div>
+        % else:
+            <div class="alert alert-info" role="alert">
+                Programs not available.
+            </div>
+        % endif
+
+    </div>
 </%block>
+
 
 <%block name="extra_css">
     <style>
+        .programs-grid {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.program-card {
+    padding: 0 15px;
+    box-sizing: border-box;
+    flex: 0 0 100%; /* Full width on small screens */
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+    .program-card {
+        flex: 0 0 50%; /* 2 cards in a row */
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .program-card {
+        flex: 0 0 33.3333%; /* 3 cards in a row */
+    }
+}
+
         /* Additional styles for the card */
         .card {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for a lifted effect */
@@ -61,16 +97,16 @@ from django.middleware.csrf import get_token
             transform: translateY(-5px); /* Lift the card up when hovered */
         }
         .card-title {
-            margin: 2rem 0.5rem 0.5rem 0.5rem;
+            margin: 2rem 1rem;
         }
         .card-text {
-            margin: 0.5rem;
+            margin: 1rem;
         }
         .card-footer {
             background-color: #fff;
             border-top: none;
             text-align: right;
-            padding: 0.5rem;
+            padding: 1rem;
         }
         .text-decoration-none:hover,
         .text-decoration-none{

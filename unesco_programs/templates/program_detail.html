@@ -12,7 +12,7 @@ from django.urls import reverse
 <%namespace name='static' file='static_content.html'/>
 
 <%block name="title">
-    <title>${_("Add Program")}</title>
+    <title>${program.name}</title>
 </%block>
 
 <%block name="extra_css">
@@ -138,7 +138,7 @@ from django.urls import reverse
         <h1 class="program-name mb-25"">${program.name}</h1>
 
         <!-- Program Description -->
-        <div class="program-desc  mb-50">
+        <div class="program-desc  mb-50 p-2">
             ${HTML(program.description)} <!-- Maintain HTML format of the description -->
         </div>      
 

@@ -19,7 +19,7 @@ class UnescoProgram(models.Model):
     courses = models.ManyToManyField(CourseOverview, blank=True,
                                      help_text=_("Courses that are part of the program"), related_name='unesco_programs', 
                                      related_query_name='unesco_program', db_table='unesco_programs_program_courses')
-    description = models.TextField(max_length=500, blank=True, null=True, default=None, help_text='Description of the program')
+    description = models.TextField(max_length=2000, blank=True, null=True, default=None, help_text='Description of the program')
     banner_image = models.ImageField(upload_to='program_banners/')
 
     def save(self, *args, **kwargs):

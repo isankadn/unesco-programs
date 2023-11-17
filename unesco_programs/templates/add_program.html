@@ -42,6 +42,9 @@ from django.middleware.csrf import get_token
         .ck-editor__editable {
             height: 300px; /* or any other value */
         }
+        #id_name{
+          width: 100%;
+        }
     </style>
 </%block>
 
@@ -97,7 +100,10 @@ from django.middleware.csrf import get_token
 <script>
    
    ClassicEditor
-   .create(document.querySelector('#id_description'))
+   .create(document.querySelector('#id_description'), {
+       // Add the maxCharCount configuration here
+       maxCharCount: 2000
+   })
     .then( editor => {
         console.log( editor );
     } )
