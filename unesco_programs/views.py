@@ -16,12 +16,12 @@ def program_detail(request, program_slug):
     program = get_object_or_404(UnescoProgram, slug=program_slug)
     can_edit = request.user.has_perm('unesco_programs.can_edit_program') 
     return render(request, 'program_detail.html', {'program': program, 'can_edit': can_edit})
-
+ 
 @login_required
 def add_program(request):
     if not request.user.has_perm('unesco_programs.can_add_program'):
         raise PermissionDenied
-    
+     
     if request.method == 'POST':
         form = UnescoProgramForm(request.POST, request.FILES)
         if form.is_valid():

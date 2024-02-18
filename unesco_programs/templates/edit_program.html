@@ -45,6 +45,9 @@ from django.middleware.csrf import get_token
         #id_name{
           width: 100%;
         }
+        .form-group label {
+            padding-bottom: 20px;
+        }
     </style>
 </%block>
 <%block name="content">
@@ -81,6 +84,19 @@ from django.middleware.csrf import get_token
             <div class="form-group">
                 <label for="id_description">${ form['description'].label }</label>
                 ${ form['description'] }
+            </div>
+            <div class="form-group">
+                <label for="id_website">${ form['website'].label }</label>
+                ${ form['website'] }
+            </div>
+            <div class="form-group">
+                <label for="id_logo_image">${ form['logo_image'].label }</label>
+                ${ form['logo_image'] }
+                % if program.logo_image:
+                    <div class="mt-2">
+                        <img src="${ program.logo_image.url }" alt="Logo Image" style="max-width: 200px;">
+                    </div>
+                % endif
             </div>
             <div class="form-group">
                 <label for="id_banner_image">${ form['banner_image'].label }</label>

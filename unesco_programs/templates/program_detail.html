@@ -96,6 +96,7 @@ from django.urls import reverse
    }
    .course-list{
     text-align: left;    
+    width: 300px;
    }
    .sub_menu a{
       display: flex;
@@ -121,6 +122,39 @@ from django.urls import reverse
       color: rgb(72, 72, 72);
       text-decoration: none;
     }
+    .program-name{
+      text-align: center;
+      text-decoration: none;
+    }
+    .logo_image_wrap{
+      width: 150px;
+      height: 150px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #eeeeee;
+      box-shadow: 0 0 8px 2px #ebebeb;
+      border-radius: 5px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: auto;
+      margin-top: -100px;
+      margin-bottom: 50px;
+    }
+    .logo_image_wrap img{
+      width: auto;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      z-index: 10;
+      background: #ffffff;
+    } 
+    .name-wrap{
+     height: 90px;
+    }
   </style>
 </%block>
 
@@ -133,10 +167,14 @@ from django.urls import reverse
         <div class="banner-container mb-4">
             <img src="${program.banner_image.url}" alt="Program Banner" class="img-fluid">
         </div>
-
+        <div class="logo_image_row">
+          <div class="logo_image_wrap">
+            <img src="${program.logo_image.url}">
+          </div>
+        </div>
         <!-- Program Name -->
-        <h1 class="program-name mb-25"">${program.name}</h1>
-
+        <h1 class="program-name mb-10">${program.name}</h1>
+        <p class="program-name mb-25" ><a href="${program.website}" target="_blank">${program.website}</a></p>
         <!-- Program Description -->
         <div class="program-desc  mb-50 p-2">
             ${HTML(program.description)} <!-- Maintain HTML format of the description -->
@@ -146,14 +184,18 @@ from django.urls import reverse
         <h2 class="off-courses mb-25">${_("Courses in this Program")}</h2>
         <div class="program-courses mb-100">
             % for course in program.courses.all():
-                <a href="/courses/${course.id}/">
-                  <div class="course-list">
-                      <img src="${course.course_image_url if course.course_image_url else '#'}" alt="${course.display_name}" class="img-thumbnail mb-10" style="width: 300px;"> <!-- Course Card Image -->
-                      <h4 class="course-name">${course.display_name}</h4>
-                      <p class="course-number">${course.display_number_with_default}</p>
-                      <p class="course-start">${course.start_display}</p>
-                  </div>
-                </a>
+              <div class="course-card-wrap">
+                  <a href="/courses/${course.id}/">
+                    <div class="course-list">
+                        <img src="${course.course_image_url if course.course_image_url else '#'}" alt="${course.display_name}" class="img-thumbnail mb-10" style="width: 300px;"> <!-- Course Card Image -->
+                        <div class="name-wrap">
+                          <h4 class="course-name">${course.display_name}</h4>
+                        </div>
+                        <p class="course-number">${course.display_number_with_default}</p>
+                        <p class="course-start">${course.start_display}</p>
+                    </div>
+                  </a>
+              </div>
             % endfor
         </div>
 

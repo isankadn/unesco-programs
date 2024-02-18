@@ -19,4 +19,4 @@ class UnescoProgramForm(forms.ModelForm):
     
     class Meta:
         model = UnescoProgram
-        fields = ['name', 'organizations', 'courses', 'description', 'banner_image']
+        fields = ['name', 'organizations', 'courses', 'description','website', 'banner_image', 'logo_image']

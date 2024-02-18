@@ -20,6 +20,8 @@ class UnescoProgram(models.Model):
                                      help_text=_("Courses that are part of the program"), related_name='unesco_programs', 
                                      related_query_name='unesco_program', db_table='unesco_programs_program_courses')
     description = models.TextField(max_length=2000, blank=True, null=True, default=None, help_text='Description of the program')
+    website = models.URLField(max_length=200, blank=True, null=True, default=None, help_text='Website of the program')  
+    logo_image = models.ImageField(upload_to='program_logos/', default='program_logos/default.png', blank=False, help_text='Logo of the program')
     banner_image = models.ImageField(upload_to='program_banners/')
 
     def save(self, *args, **kwargs):
