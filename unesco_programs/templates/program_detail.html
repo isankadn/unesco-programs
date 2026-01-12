@@ -101,24 +101,32 @@ from django.utils import timezone
     position: relative;
    }
    .status {
+      background: #0069B4;
+      color: white;
+      font-size: 10px;
+      left: 10px;
+      padding: 2px 10px;
+      border-radius: 2px;
       position: absolute;
-      top: 12px;
-      left: 12px;
+      top: -6px;
       z-index: 2;
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      line-height: 1;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
-      color: #ffffff;
-      background: rgba(0, 0, 0, 0.65);
    }
-   .status.future { background: #0b6fd3; }    /* Upcoming */
-   .status.ongoing { background: #188038; }   /* Ongoing */
-   .status.finished { background: #5f6368; }  /* Finalized */
+   .status::after {
+      border-bottom: 6px solid #00355a;
+      border-right: 6px solid transparent;
+      content: "";
+      display: block;
+      height: 0;
+      position: absolute;
+      right: -6px;
+      top: 0;
+      width: 0;
+   }
+   /* Only background changes per status */
+   .status.future { background: #0b6fd3; }             /* Open for Enrollment (future) */
+   .status.ongoing { background: #188038; }            /* Ongoing */
+   .status.finished { background: #5f6368; }           /* Finalized */
+   .status.invitations_only { background: #b06000; }   /* By Invitation */
    .sub_menu a{
       display: flex;
       flex-direction: row;
@@ -206,14 +214,38 @@ from django.utils import timezone
         <div class="program-courses mb-100">
             % for course in program.courses.all():
               <%
+                # Mirror the status logic used in the themed course card template.
                 now = timezone.now()
-                if course.start is not None and course.end is not None and course.end < now:
+                if course.start is not None and course.start < now and course.end is not None and course.end < now:
                     status = _("Finalized")
                     status_code = "finished"
-                elif course.start is not None and course.start > now:
-                    status = _("Upcoming")
+                elif course.start is not None and course.start > now and course.invitation_only == False:
+                    status = _("Open for Enrollment")
                     status_code = "future"
+                elif course.start is not None and course.start > now and course.invitation_only == True:
+                    status = _("By Invitation")
+                    status_code = "invitations_only"
+                elif (
+                    course.start is not None and
+                    (
+                        (course.start < now and course.end is None) or
+                        (course.start < now and course.end is not None and course.end > now)
+                    ) and
+                    course.invitation_only == True
+                ):
+                    status = _("By Invitation")
+                    status_code = "invitations_only"
+                elif (
+                    course.start is not None and
+                    (
+                        (course.start < now and course.end is None) or
+                        (course.start < now and course.end is not None and course.end > now)
+                    )
+                ):
+                    status = _("Ongoing")
+                    status_code = "ongoing"
                 else:
+                    # Fallback if course.start is missing or otherwise unexpected.
                     status = _("Ongoing")
                     status_code = "ongoing"
               %>
