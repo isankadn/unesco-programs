@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 from openedx.core.djangolib.markup import HTML, Text
 from django.middleware.csrf import get_token
 from django.urls import reverse
+from django.utils import timezone
 %>
 
 <%inherit file="/main.html"/>
@@ -37,22 +38,22 @@ from django.urls import reverse
     margin-bottom: 100px;
   }
   .banner-container{
-    height: 300px;           
-    width: 100%;            
-    overflow: hidden;      
-    position: relative; 
+    height: 300px;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
   }
   .img-fluid{
-    object-fit: cover;       
-    height: 100%;            
-    width: 100%;            
-    position: absolute;     
-    top: 0;                 
-    left: 0;  
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
   .img-thumbnail{
     width: 150px;
-   
+
   }
   .off-org,
   .off-courses,
@@ -62,17 +63,17 @@ from django.urls import reverse
   }
   .program-org,
   .program-courses {
-            display: flex;  
+            display: flex;
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
-            align-content: center; 
+            align-content: center;
             gap: 20px;
   }
   .org-name,
   .course-name{
     font-size: 18px;
-    font-weight: normal; 
+    font-weight: normal;
     color: rgb(72, 72, 72);
     text-decoration: none;
   }
@@ -95,9 +96,29 @@ from django.urls import reverse
       box-shadow: 0 1px 4px 0 rgba(154, 154, 154, 0.4);
    }
    .course-list{
-    text-align: left;    
+    text-align: left;
     width: 300px;
+    position: relative;
    }
+   .status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 2;
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      line-height: 1;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: #ffffff;
+      background: rgba(0, 0, 0, 0.65);
+   }
+   .status.future { background: #0b6fd3; }    /* Upcoming */
+   .status.ongoing { background: #188038; }   /* Ongoing */
+   .status.finished { background: #5f6368; }  /* Finalized */
    .sub_menu a{
       display: flex;
       flex-direction: row;
@@ -109,16 +130,16 @@ from django.urls import reverse
       background: #0069B4 !important;
       color: white !important;
       text-align: center;
-    } 
+    }
     .course-number{
       font-size: 14px;
-      font-weight: normal; 
+      font-weight: normal;
       color: rgb(72, 72, 72);
       text-decoration: none;
     }
     .course-start{
       font-size: 14px;
-      font-weight: normal; 
+      font-weight: normal;
       color: rgb(72, 72, 72);
       text-decoration: none;
     }
@@ -151,7 +172,7 @@ from django.urls import reverse
       object-position: center;
       z-index: 10;
       background: #ffffff;
-    } 
+    }
     .name-wrap{
      height: 90px;
     }
@@ -178,15 +199,30 @@ from django.urls import reverse
         <!-- Program Description -->
         <div class="program-desc  mb-50 p-2">
             ${HTML(program.description)} <!-- Maintain HTML format of the description -->
-        </div>      
+        </div>
 
         <!-- Course List -->
         <h2 class="off-courses mb-25">${_("Courses in this Program")}</h2>
         <div class="program-courses mb-100">
             % for course in program.courses.all():
+              <%
+                now = timezone.now()
+                if course.start is not None and course.end is not None and course.end < now:
+                    status = _("Finalized")
+                    status_code = "finished"
+                elif course.start is not None and course.start > now:
+                    status = _("Upcoming")
+                    status_code = "future"
+                else:
+                    status = _("Ongoing")
+                    status_code = "ongoing"
+              %>
               <div class="course-card-wrap">
                   <a href="/courses/${course.id}/">
                     <div class="course-list">
+                        <div class="status ${status_code}">
+                          ${status}
+                        </div>
                         <img src="${course.course_image_url if course.course_image_url else '#'}" alt="${course.display_name}" class="img-thumbnail mb-10" style="width: 300px;"> <!-- Course Card Image -->
                         <div class="name-wrap">
                           <h4 class="course-name">${course.display_name}</h4>
