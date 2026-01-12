@@ -123,10 +123,10 @@ from django.utils import timezone
       width: 0;
    }
    /* Only background changes per status */
-   .status.future { background: #0b6fd3; }             /* Open for Enrollment (future) */
-   .status.ongoing { background: #188038; }            /* Ongoing */
-   .status.finished { background: #5f6368; }           /* Finalized */
-   .status.invitations_only { background: #b06000; }   /* By Invitation */
+   .status.invitations_only { background: #0069B4; }                /* By Invitation */
+   .status.future { background: #67bb89 !important; }               /* Open for Enrollment (future) */
+   .status.ongoing { background: #188038; }                         /* Ongoing */
+   .status.finished { background: #e83f40 !important; }             /* Finalized */
    .sub_menu a{
       display: flex;
       flex-direction: row;
@@ -212,10 +212,55 @@ from django.utils import timezone
         <!-- Course List -->
         <h2 class="off-courses mb-25">${_("Courses in this Program")}</h2>
         <div class="program-courses mb-100">
-            % for course in program.courses.all():
+            <%
+              # Default sort order:
+              # (1) Upcoming "Open for Enrollment" (newly published first),
+              # (2) Ongoing,
+              # (3) Finalized.
+              now = timezone.now()
+              courses = list(program.courses.all())
+
+              def _epoch(dt):
+                  return dt.timestamp() if dt is not None else 0
+
+              def _sort_key(c):
+                  # Primary buckets
+                  is_finished = c.end is not None and c.end < now
+                  is_upcoming = c.start is not None and c.start > now
+                  is_ongoing = (
+                      c.start is not None and c.start < now and
+                      (c.end is None or c.end > now)
+                  )
+
+                  if is_upcoming:
+                      primary = 0
+                      # Put "Open for Enrollment" before "By Invitation" within upcoming.
+                      upcoming_sub = 0 if c.invitation_only == False else 1
+                      # "Newly published" proxy: most recently modified overview first.
+                      # (CourseOverview is a TimeStampedModel, updated on publish/overview refresh.)
+                      published_rank = -_epoch(getattr(c, "modified", None) or getattr(c, "created", None))
+                      # Tie-breaker: soonest start first.
+                      start_rank = _epoch(c.start)
+                      return (primary, upcoming_sub, published_rank, start_rank)
+
+                  if is_ongoing:
+                      primary = 1
+                      # Tie-breaker: most recently started first.
+                      return (primary, -_epoch(c.start), published_rank if 'published_rank' in locals() else 0)
+
+                  if is_finished:
+                      primary = 2
+                      # Tie-breaker: most recently finished first.
+                      return (primary, -_epoch(c.end), published_rank if 'published_rank' in locals() else 0)
+
+                  # Fallback (missing dates): treat as ongoing-ish.
+                  return (1, 0, 0, 0)
+
+              courses_sorted = sorted(courses, key=_sort_key)
+            %>
+            % for course in courses_sorted:
               <%
                 # Mirror the status logic used in the themed course card template.
-                now = timezone.now()
                 if course.start is not None and course.start < now and course.end is not None and course.end < now:
                     status = _("Finalized")
                     status_code = "finished"
