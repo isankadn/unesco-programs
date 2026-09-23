@@ -4,11 +4,16 @@
 <%!
 import re
 from html import unescape
+
 from django.urls import reverse
 from django.utils.translation import ugettext as _
-from openedx.core.djangolib.markup import HTML, Text
-from django.middleware.csrf import get_token
 
+
+def program_summary(value, limit=165):
+    text = re.sub(r"\s+", " ", re.sub(r"<[^>]*>", " ", unescape(value or ""))).strip()
+    if len(text) <= limit:
+        return text
+    return text[:limit].rsplit(" ", 1)[0].rstrip() + "…"
 %>
 
 <%inherit file="/main.html"/>
@@ -18,113 +23,73 @@ from django.middleware.csrf import get_token
     <title>${_("Programs")}</title>
 </%block>
 
+<%block name="pagetitle">${_("Programs")}</%block>
+<%block name="bodyclass">unesco-programs</%block>
+
 <%block name="content">
-    % if can_add:
-        <div class="sub_menu"> <a href="${reverse('add_program')}">Add New Program</a> </div>
-    % endif
-    <div class="container mt-5">
-        <h1>${_("Programs")}</h1>
+  <main id="main" aria-label="${_('Programs')}" tabindex="-1">
+    <section class="programs-hero full-bleed-section" aria-labelledby="programs-title">
+      <div class="section-inner">
+        <svg class="programs-hero-branch" viewBox="0 0 420 360" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <g fill="none" stroke="#fff" stroke-width="2">
+            <path d="M210 360 V200"></path><path d="M210 230 C210 170 270 160 290 110"></path>
+            <path d="M210 250 C210 190 150 180 130 130"></path><path d="M210 200 C210 150 260 140 300 160"></path>
+            <path d="M290 110 C310 70 360 80 370 40"></path><path d="M130 130 C110 90 60 100 50 60"></path>
+          </g>
+          <g fill="#fff"><circle cx="370" cy="36" r="6"></circle><circle cx="50" cy="56" r="6"></circle><circle cx="300" cy="156" r="5"></circle><circle cx="288" cy="106" r="4"></circle><circle cx="132" cy="126" r="4"></circle></g>
+        </svg>
+        <nav class="programs-breadcrumb" aria-label="${_('Breadcrumb')}">
+          <a href="/">${_("Home")}</a><span aria-hidden="true">/</span><span>${_("Programs")}</span>
+        </nav>
+        <div class="programs-hero-copy">
+          <h1 id="programs-title">${_("Programs")}</h1>
+          <p>${_("Explore curated collections of free online courses organized around shared themes and areas of expertise.")}</p>
+          % if can_add:
+            <a class="program-admin-action" href="${reverse('add_program')}">
+              <span class="material-icons" aria-hidden="true">add</span>${_("Add new program")}
+            </a>
+          % endif
+        </div>
+      </div>
+    </section>
+
+    <section class="programs-directory full-bleed-section" aria-labelledby="programs-directory-title">
+      <div class="section-inner">
+        <div class="programs-section-heading">
+          <span>${_("Learning collections")}</span>
+          <h2 id="programs-directory-title">${_("Explore our programs")}</h2>
+          <p>${_("Choose a program to discover its learning focus and available courses.")}</p>
+        </div>
 
         % if programs:
-            <div class="programs-grid"> 
-                % for program in programs:
-                    <div class="program-card" style="padding: 0 15px; box-sizing: border-box;">
-                        <div class="col-md-4 mb-4">  
-                            <a href="${reverse('program_detail', args=[program.slug])}" class="text-decoration-none">
-                                <div class="card h-100"> 
-                                    <img class="card-img-top" src="${program.banner_image.url}" alt="${program.name}" style="height: 150px; width: 100%; object-fit: cover; object-position: center;"/>
-                                    <div class="card-body">
-                                        <h2 class="card-title">${program.name}</h2>
-                                        <p class="card-text">${Text(re.sub('<.*?>', '', unescape(program.description))[:100])}...</p>
-                                    </div>
-                                    <div class="card-footer"> 
-                                        <small class="text-muted">More Info</small>
-                                    </div>
-                                </div>
-                            </a> 
-                        </div>
-                    </div>
-                % endfor
-            </div>
+          <div class="programs-grid">
+            % for program in programs:
+              <article class="program-card" aria-labelledby="program-${program.id}-title">
+                <a href="${reverse('program_detail', args=[program.slug])}">
+                  <div class="program-card-media">
+                    <img src="${program.banner_image.url}" alt="" loading="lazy" decoding="async">
+                  </div>
+                  <div class="program-card-body">
+                    <span class="program-card-label">${_("Learning program")}</span>
+                    <h3 id="program-${program.id}-title">${program.name}</h3>
+                    <p>${program_summary(program.description)}</p>
+                    <span class="program-card-action">
+                      ${_("Explore program")}<span class="material-icons" aria-hidden="true">arrow_forward</span>
+                    </span>
+                  </div>
+                </a>
+              </article>
+            % endfor
+          </div>
         % else:
-            <div class="alert alert-info" role="alert">
-                Programs not available.
-            </div>
+          <div class="programs-empty" role="status">
+            <span class="material-icons" aria-hidden="true">school</span>
+            <p>${_("Programs are not available yet.")}</p>
+          </div>
         % endif
-
-    </div>
+      </div>
+    </section>
+  </main>
 </%block>
 
 
-<%block name="extra_css">
-    <style>
-        .programs-grid {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -15px;
-    margin-left: -15px;
-}
-
-.program-card {
-    padding: 0 15px;
-    box-sizing: border-box;
-    flex: 0 0 100%; /* Full width on small screens */
-}
-
-/* Medium devices (tablets, 768px and up) */
-@media (min-width: 768px) {
-    .program-card {
-        flex: 0 0 50%; /* 2 cards in a row */
-    }
-}
-
-/* Large devices (desktops, 992px and up) */
-@media (min-width: 992px) {
-    .program-card {
-        flex: 0 0 33.3333%; /* 3 cards in a row */
-    }
-}
-
-        /* Additional styles for the card */
-        .card {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for a lifted effect */
-            border: none; /* Remove default border */
-            transition: transform 0.2s; /* Animation for hover effect */
-            border-radius: 10px;
-        }
-
-        .card:hover {
-            transform: translateY(-5px); /* Lift the card up when hovered */
-        }
-        .card-title {
-            margin: 2rem 1rem;
-        }
-        .card-text {
-            margin: 1rem;
-        }
-        .card-footer {
-            background-color: #fff;
-            border-top: none;
-            text-align: right;
-            padding: 1rem;
-        }
-        .text-decoration-none:hover,
-        .text-decoration-none{
-            text-decoration: none !important;
-            color: #393939 !important;
-        }
-        .sub_menu a{
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            padding: 10px;
-            margin: 10px 0px;
-            width: 20%;
-            float: right;
-            background: #0069B4 !important;
-            color: white !important;
-            text-align: center;
-         }
-        
-    </style>
-</%block>

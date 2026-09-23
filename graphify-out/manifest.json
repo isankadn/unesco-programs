@@ -1,0 +1,97 @@
+{
+  "/home/dev/workbench/unesco/src/unesco-programs/setup.py": {
+    "mtime": 1708233237.5238326,
+    "ast_hash": "5b932d380ca12c141035683588c586fb",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/__init__.py": {
+    "mtime": 1708233237.5238326,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/forms.py": {
+    "mtime": 1708242843.709656,
+    "ast_hash": "37326cbcb4b771842da5a155fdf66875",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/views.py": {
+    "mtime": 1774995475.0555458,
+    "ast_hash": "b6c4e7e3a2e6495f5520119efe8c6783",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/models.py": {
+    "mtime": 1708242609.3120673,
+    "ast_hash": "73d9ac29dcd427524a679b4b9bccc1ae",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/admin.py": {
+    "mtime": 1708233237.5238326,
+    "ast_hash": "a42416c19d0daaa2a5c5bdce060cb513",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/urls.py": {
+    "mtime": 1708233237.5238326,
+    "ast_hash": "0e87cad40e922b8ec0f4162a651f8399",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/migrations/__init__.py": {
+    "mtime": 1708233237.5238326,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/migrations/0001_initial.py": {
+    "mtime": 1708233237.5238326,
+    "ast_hash": "98f70c4bbbda32634d005b8b329d1aa3",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/migrations/0004_alter_unescoprogram_description.py": {
+    "mtime": 1708233237.5238326,
+    "ast_hash": "9ab077cf1a5ceba578767f7a649a9b44",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/migrations/0006_unescoprogram_website.py": {
+    "mtime": 1708242700.9342363,
+    "ast_hash": "7415ce5a2d35d1bcc1a5533b0097449d",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/migrations/0003_alter_unescoprogram_options.py": {
+    "mtime": 1708233237.5238326,
+    "ast_hash": "33938a3161b700288263fe487641f0bb",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/migrations/0002_auto_20231029_1525.py": {
+    "mtime": 1708233237.5238326,
+    "ast_hash": "0b6e8177b86b01c2cc9e0e046fc947bc",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/migrations/0005_unescoprogram_logo_image.py": {
+    "mtime": 1708242513.8298333,
+    "ast_hash": "60a96b1a5d81c1ac3061cee3c1d56c24",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/README.md": {
+    "mtime": 1708233237.5238326,
+    "ast_hash": "9538c05443c854d58bb5405e2a31d327",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/templates/edit_program.html": {
+    "mtime": 1708243008.1136405,
+    "ast_hash": "b35c3bed2fbb92eb7863645233bb59ed",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/templates/program_list.html": {
+    "mtime": 1708244994.804858,
+    "ast_hash": "3abba005570bee5ee41bdd453dc51385",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/templates/add_program.html": {
+    "mtime": 1708243037.466356,
+    "ast_hash": "23c933bcde563071b479b8fe36fb2b48",
+    "semantic_hash": ""
+  },
+  "/home/dev/workbench/unesco/src/unesco-programs/unesco_programs/templates/program_detail.html": {
+    "mtime": 1774995055.1489034,
+    "ast_hash": "107844ab51e725393f72bdddfaf40fac",
+    "semantic_hash": ""
+  }
+}

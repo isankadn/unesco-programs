@@ -2,11 +2,26 @@
 <%page expression_filter="h"/>
 
 <%!
-from django.utils.translation import ugettext as _
-from openedx.core.djangolib.markup import HTML, Text
-from django.middleware.csrf import get_token
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import ugettext as _
+from openedx.core.djangolib.markup import HTML
+
+
+def course_status(course, now):
+    if course.start is not None and course.start < now and course.end is not None and course.end < now:
+        return _("Finalized"), "finished"
+    if course.start is not None and course.start > now:
+        if course.invitation_only:
+            return _("By Invitation"), "invitations-only"
+        return _("Open for Enrollment"), "future"
+    if course.start is not None and course.start < now and (
+        course.end is None or course.end > now
+    ):
+        if course.invitation_only:
+            return _("By Invitation"), "invitations-only"
+        return _("Ongoing"), "ongoing"
+    return _("Ongoing"), "ongoing"
 %>
 
 <%inherit file="/main.html"/>
@@ -16,313 +31,126 @@ from django.utils import timezone
     <title>${program.name}</title>
 </%block>
 
-<%block name="extra_css">
-<style>
-  li{
-    display: grid;
-    list-style: none;
-  }
-  .mb-5{
-    margin-bottom: 5px;
-  }
-  .mb-10{
-    margin-bottom: 10px;
-  }
-  .md-25{
-    margin-bottom: 25px;
-  }
-  .mb-50{
-    margin-bottom: 50px;
-  }
-  .mb-100{
-    margin-bottom: 100px;
-  }
-  .banner-container{
-    height: 300px;
-    width: 100%;
-    overflow: hidden;
-    position: relative;
-  }
-  .img-fluid{
-    object-fit: cover;
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-  .img-thumbnail{
-    width: 150px;
+<%block name="pagetitle">${program.name}</%block>
+<%block name="bodyclass">unesco-program-profile</%block>
 
-  }
-  .off-org,
-  .off-courses,
-  .course-list,
-  .org-list {
-    text-align: center;
-  }
-  .program-org,
-  .program-courses {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            align-content: center;
-            gap: 20px;
-  }
-  .org-name,
-  .course-name{
-    font-size: 18px;
-    font-weight: normal;
-    color: rgb(72, 72, 72);
-    text-decoration: none;
-  }
-  .course-number,
-  .course-start,
-  .course-name{
-    padding-left: 10px;
-  }
-  a:hover,
-  .org-name:hover,
-  .course-name:hover{
-    color: rgb(64, 64, 64);
-    text-decoration: none;
-  }
-  .org-list,
-  .course-list{
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 10px;
-      box-shadow: 0 1px 4px 0 rgba(154, 154, 154, 0.4);
-   }
-   .course-list{
-    text-align: left;
-    width: 300px;
-    position: relative;
-   }
-   .status {
-      background: #0069B4;
-      color: white;
-      font-size: 10px;
-      left: 10px;
-      padding: 2px 10px;
-      border-radius: 2px;
-      position: absolute;
-      top: -6px;
-      z-index: 2;
-   }
-   .status::after {
-      border-bottom: 6px solid #00355a;
-      border-right: 6px solid transparent;
-      content: "";
-      display: block;
-      height: 0;
-      position: absolute;
-      right: -6px;
-      top: 0;
-      width: 0;
-   }
-   /* Only background changes per status */
-   .status.invitations_only { background: #0069B4; }                /* By Invitation */
-   .status.future { background: #67bb89 !important; }               /* Open for Enrollment (future) */
-   .status.ongoing { background: #188038; }                         /* Ongoing */
-   .status.finished { background: #e83f40 !important; }             /* Finalized */
-   .sub_menu a{
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      padding: 10px;
-      margin: 10px 0px;
-      width: 20%;
-      float: right;
-      background: #0069B4 !important;
-      color: white !important;
-      text-align: center;
-    }
-    .course-number{
-      font-size: 14px;
-      font-weight: normal;
-      color: rgb(72, 72, 72);
-      text-decoration: none;
-    }
-    .course-start{
-      font-size: 14px;
-      font-weight: normal;
-      color: rgb(72, 72, 72);
-      text-decoration: none;
-    }
-    .program-name{
-      text-align: center;
-      text-decoration: none;
-    }
-    .logo_image_wrap{
-      width: 150px;
-      height: 150px;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border: 1px solid #eeeeee;
-      box-shadow: 0 0 8px 2px #ebebeb;
-      border-radius: 5px;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: auto;
-      margin-top: -100px;
-      margin-bottom: 50px;
-    }
-    .logo_image_wrap img{
-      width: auto;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      z-index: 10;
-      background: #ffffff;
-    }
-    .name-wrap{
-     height: 90px;
-    }
-  </style>
-</%block>
 
 <%block name="content">
-  % if can_edit:
-    <div class="sub_menu"> <a href="${reverse('edit_program', kwargs={'program_slug': program.slug})}">Edit Program</a> </div>
-  % endif
-    <div class="program mt-0">
-        <!-- Program Banner -->
-        <div class="banner-container mb-4">
-            <img src="${program.banner_image.url}" alt="Program Banner" class="img-fluid">
-        </div>
-        <div class="logo_image_row">
-          <div class="logo_image_wrap">
-            <img src="${program.logo_image.url}">
+  <%
+    now = timezone.now()
+    organizations = list(program.organizations.all())
+  %>
+  <main id="main" aria-label="${program.name}" tabindex="-1">
+    <section class="program-profile-hero full-bleed-section" aria-labelledby="program-profile-title">
+      <div class="program-profile-banner" aria-hidden="true">
+        <img src="${program.banner_image.url}" alt="">
+      </div>
+      <div class="program-profile-shade" aria-hidden="true"></div>
+      <div class="section-inner">
+        <nav class="program-profile-breadcrumb" aria-label="${_('Breadcrumb')}">
+          <a href="/">${_("Home")}</a><span aria-hidden="true">/</span>
+          <a href="${reverse('program_list')}">${_("Programs")}</a><span aria-hidden="true">/</span>
+          <span>${program.name}</span>
+        </nav>
+        <div class="program-profile-identity">
+          <div class="program-profile-logo">
+            <img src="${program.logo_image.url}" alt="${program.name} ${_('logo')}">
+          </div>
+          <div class="program-profile-heading">
+            <span>${_("Learning program")}</span>
+            <h1 id="program-profile-title">${program.name}</h1>
+            <div class="program-profile-actions">
+              % if program.website:
+                <a href="${program.website}" target="_blank" rel="noopener noreferrer">
+                  ${_("Visit program website")}<span class="material-icons" aria-hidden="true">open_in_new</span>
+                </a>
+              % endif
+              % if can_edit:
+                <a href="${reverse('edit_program', kwargs={'program_slug': program.slug})}">
+                  <span class="material-icons" aria-hidden="true">edit</span>${_("Edit program")}
+                </a>
+              % endif
+            </div>
           </div>
         </div>
-        <!-- Program Name -->
-        <h1 class="program-name mb-10">${program.name}</h1>
-        <p class="program-name mb-25" ><a href="${program.website}" target="_blank">${program.website}</a></p>
-        <!-- Program Description -->
-        <div class="program-desc  mb-50 p-2">
-            ${HTML(program.description)} <!-- Maintain HTML format of the description -->
+      </div>
+    </section>
+
+    <section class="program-profile-main full-bleed-section" aria-label="${_('Program information')}">
+      <div class="section-inner">
+        <div class="program-profile-overview">
+          <article class="program-profile-description">
+            <span class="program-profile-kicker">${_("About this program")}</span>
+            <h2>${_("Program overview")}</h2>
+            <div class="program-profile-rich-text">${HTML(program.description or "")}</div>
+          </article>
+
         </div>
 
-        <!-- Course List -->
-        <h2 class="off-courses mb-25">${_("Courses in this Program")}</h2>
-        <div class="program-courses mb-100">
-            <%
-              # Default sort order:
-              # (1) Upcoming "Open for Enrollment" (newly published first),
-              # (2) Ongoing,
-              # (3) Finalized.
-              now = timezone.now()
-              courses = list(program.courses.all())
+        <section class="program-profile-courses" aria-labelledby="program-courses-title">
+          <div class="program-profile-section-heading">
+            <span class="program-profile-kicker">${_("Learning opportunities")}</span>
+            <h2 id="program-courses-title">${_("Courses in this program")}</h2>
+            <p>${_("Explore the courses included in this learning program.")}</p>
+          </div>
 
-              def _epoch(dt):
-                  return dt.timestamp() if dt is not None else 0
-
-              def _sort_key(c):
-                  # Primary buckets
-                  is_finished = c.end is not None and c.end < now
-                  is_upcoming = c.start is not None and c.start > now
-                  is_ongoing = (
-                      c.start is not None and c.start < now and
-                      (c.end is None or c.end > now)
-                  )
-
-                  if is_upcoming:
-                      primary = 0
-                      # Put "Open for Enrollment" before "By Invitation" within upcoming.
-                      upcoming_sub = 0 if c.invitation_only == False else 1
-                      # "Newly published" proxy: most recently modified overview first.
-                      # (CourseOverview is a TimeStampedModel, updated on publish/overview refresh.)
-                      published_rank = -_epoch(getattr(c, "modified", None) or getattr(c, "created", None))
-                      # Tie-breaker: soonest start first.
-                      start_rank = _epoch(c.start)
-                      return (primary, upcoming_sub, published_rank, start_rank)
-
-                  if is_ongoing:
-                      primary = 1
-                      # Tie-breaker: most recently started first.
-                      return (primary, -_epoch(c.start), published_rank if 'published_rank' in locals() else 0)
-
-                  if is_finished:
-                      primary = 2
-                      # Tie-breaker: most recently finished first.
-                      return (primary, -_epoch(c.end), published_rank if 'published_rank' in locals() else 0)
-
-                  # Fallback (missing dates): treat as ongoing-ish.
-                  return (1, 0, 0, 0)
-
-              courses_sorted = sorted(courses, key=_sort_key)
-            %>
-            % for course in courses_sorted:
-              <%
-                # Mirror the status logic used in the themed course card template.
-                if course.start is not None and course.start < now and course.end is not None and course.end < now:
-                    status = _("Finalized")
-                    status_code = "finished"
-                elif course.start is not None and course.start > now and course.invitation_only == False:
-                    status = _("Open for Enrollment")
-                    status_code = "future"
-                elif course.start is not None and course.start > now and course.invitation_only == True:
-                    status = _("By Invitation")
-                    status_code = "invitations_only"
-                elif (
-                    course.start is not None and
-                    (
-                        (course.start < now and course.end is None) or
-                        (course.start < now and course.end is not None and course.end > now)
-                    ) and
-                    course.invitation_only == True
-                ):
-                    status = _("By Invitation")
-                    status_code = "invitations_only"
-                elif (
-                    course.start is not None and
-                    (
-                        (course.start < now and course.end is None) or
-                        (course.start < now and course.end is not None and course.end > now)
-                    )
-                ):
-                    status = _("Ongoing")
-                    status_code = "ongoing"
-                else:
-                    # Fallback if course.start is missing or otherwise unexpected.
-                    status = _("Ongoing")
-                    status_code = "ongoing"
-              %>
-              <div class="course-card-wrap">
+          % if courses_sorted:
+            <div class="program-course-grid">
+              % for course in courses_sorted:
+                <%
+                  status, status_code = course_status(course, now)
+                %>
+                <article class="program-course-card">
                   <a href="/courses/${course.id}/">
-                    <div class="course-list">
-                        <div class="status ${status_code}">
-                          ${status}
-                        </div>
-                        <img src="${course.course_image_url if course.course_image_url else '#'}" alt="${course.display_name}" class="img-thumbnail mb-10" style="width: 300px;"> <!-- Course Card Image -->
-                        <div class="name-wrap">
-                          <h4 class="course-name">${course.display_name}</h4>
-                        </div>
-                        <p class="course-number">${course.display_number_with_default}</p>
-                        <p class="course-start">${course.start_display}</p>
-                    </div>
+                    <span class="program-course-media">
+                      <img src="${course.course_image_url if course.course_image_url else '#'}" alt="" loading="lazy" decoding="async">
+                      <span class="program-course-status ${status_code}">${status}</span>
+                    </span>
+                    <span class="program-course-body">
+                      <span class="program-course-number">${course.display_number_with_default}</span>
+                      <h3>${course.display_name}</h3>
+                      <span class="program-course-date">
+                        <span class="material-icons" aria-hidden="true">event</span>${course.start_display}
+                      </span>
+                      <span class="program-course-action">
+                        ${_("View course")}<span class="material-icons" aria-hidden="true">arrow_forward</span>
+                      </span>
+                    </span>
                   </a>
-              </div>
-            % endfor
-        </div>
-
-        <!-- Program Offering Organizations -->
-        <h2 class="off-org mb-25">${_("Offering Partner")}</h2>
-        <div class="program-org mb-100">
-            % for organization in program.organizations.all():
-                <a href="/partners/${organization.short_name}/">
-                  <div class="org-list mb-5">
-                      <img src="${organization.logo.url if organization.logo else '#'}" alt="${organization.name}" class="img-thumbnail mb-10" style="width: 150px;"> <!-- Organization Logo -->
-                      <h4 class="org-name" >${organization.name}</h4>
-                  </div>
+                </article>
+              % endfor
+            </div>
+          % else:
+            <div class="program-profile-empty">
+              <span class="material-icons" aria-hidden="true">school</span>
+              <p>${_("No courses are currently listed for this program.")}</p>
+            </div>
+          % endif
+        </section>
+        <section class="program-profile-partners" aria-labelledby="program-partners-title">
+          <span class="program-profile-kicker">${_("Organizations")}</span>
+          <h2 id="program-partners-title">${_("Offering partners")}</h2>
+          % if organizations:
+            <div class="program-partner-list">
+              % for organization in organizations:
+                <a class="program-partner-card" href="/partners/${organization.short_name}/">
+                  <span class="program-partner-logo">
+                    % if organization.logo:
+                      <img src="${organization.logo.url}" alt="">
+                    % else:
+                      <span class="material-icons" aria-hidden="true">account_balance</span>
+                    % endif
+                  </span>
+                  <span class="program-partner-name">${organization.name}</span>
+                  <span class="material-icons program-partner-arrow" aria-hidden="true">arrow_forward</span>
                 </a>
-            % endfor
-        </div>
-    </div>
+              % endfor
+            </div>
+          % else:
+            <p class="program-profile-empty-copy">${_("No offering partners are listed for this program.")}</p>
+          % endif
+        </section>
+      </div>
+    </section>
+  </main>
 </%block>
